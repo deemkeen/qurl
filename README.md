@@ -13,7 +13,7 @@ qURL is a simple command-line tool that allows you to quickly transfer files or 
 
 ## Requirements
 
-- Go 1.20 or higher
+- Go 1.23 or higher
 
 ## Installation
 
