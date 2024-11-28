@@ -1,0 +1,163 @@
+<!-- templates/upload.html -->
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: Arial, sans-serif;
+                background: #f5f5f5;
+            }
+            .upload-container {
+                background: white;
+                padding: 2rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                width: 90%;
+                max-width: 400px;
+            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            input[type="file"],
+            textarea {
+                padding: 10px;
+                border: 2px dashed #ddd;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+            input[type="submit"] {
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                transition: background 0.2s;
+            }
+            input[type="submit"]:hover {
+                background: #0056b3;
+            }
+            #progress {
+                width: 100%;
+                height: 20px;
+                background-color: #f0f0f0;
+                border-radius: 4px;
+                margin-top: 1rem;
+            }
+            #progress-bar {
+                width: 0%;
+                height: 100%;
+                background-color: #4caf50;
+                border-radius: 4px;
+                transition: width 0.3s ease-in-out;
+            }
+            h1 {
+                color: #007bff;
+                text-align: center;
+                font-size: 3rem;
+                margin-bottom: 0.5rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            h2 {
+                color: #666;
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: normal;
+                margin-bottom: 2rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="upload-container">
+            <h1>qURL</h1>
+            <h2>share your data with the terminal</h2>
+            <form
+                action=""
+                method="post"
+                enctype="multipart/form-data"
+                onsubmit="startUpload(event)"
+            >
+                <div class="form-group">
+                    <input
+                        type="file"
+                        name="file"
+                        id="file"
+                        onchange="disableText()"
+                    />
+                    <textarea
+                        name="text"
+                        id="text"
+                        placeholder="Or paste text here..."
+                        onkeyup="disableFile()"
+                    ></textarea>
+                    <input type="submit" value="Send" />
+                    <div id="progress">
+                        <div id="progress-bar"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script>
+            function disableText() {
+                const file = document.getElementById("file");
+                const text = document.getElementById("text");
+                if (file.files.length > 0) {
+                    text.disabled = true;
+                } else {
+                    text.disabled = false;
+                }
+            }
+
+            function disableFile() {
+                const file = document.getElementById("file");
+                const text = document.getElementById("text");
+                if (text.value.length > 0) {
+                    file.disabled = true;
+                } else {
+                    file.disabled = false;
+                }
+            }
+
+            function startUpload(e) {
+                e.preventDefault();
+                const form = e.target;
+                const file = form.querySelector("#file").files[0];
+                const text = form.querySelector("#text").value;
+                const progressBar = document.getElementById("progress-bar");
+
+                if (!file && !text) return;
+
+                const formData = new FormData(form);
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.onprogress = function (e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + "%";
+                    }
+                };
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        progressBar.style.width = "100%";
+                    }
+                };
+
+                xhr.open("POST", form.action, true);
+                xhr.send(formData);
+            }
+        </script>
+    </body>
+</html>
