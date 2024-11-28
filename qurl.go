@@ -148,10 +148,13 @@ func main() {
 		}
 
 		for _, addr := range addrs {
-			if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.String()[:8] == ipPrefix {
-				if ipnet.IP.To4() != nil {
-					localIP = ipnet.IP.String()
-					break
+			if ipnet, ok := addr.(*net.IPNet); ok {
+				ipStr := ipnet.IP.String()
+				if len(ipStr) >= 8 && ipStr[:8] == ipPrefix {
+					if ipnet.IP.To4() != nil {
+						localIP = ipStr
+						break
+					}
 				}
 			}
 		}
