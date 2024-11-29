@@ -12,9 +12,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/skip2/go-qrcode"
+	"golang.org/x/term"
 )
 
 //go:embed templates/upload.html
@@ -209,7 +211,33 @@ func convertBitmap(bitmap [][]bool) [][]bool {
 }
 
 func printQRCode(qr *QRCode) {
+	width, height, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		fmt.Println("Could not get the size of the terminal, exiting..")
+		os.Exit(1)
+	}
+
+	// Check if terminal is large enough
+	qrWidth := qr.size * 2
+	qrHeight := qr.size
+
+	if width < qrWidth || height < qrHeight {
+		fmt.Printf("Make sure the terminal size is at least %d rows * %d cols,\nto display the QR Code correctly\n", qrHeight, qrWidth)
+		os.Exit(0)
+	}
+
+	// Calculate padding for centering
+	hPadding := (width - qrWidth) / 2
+	vPadding := (height - qrHeight) / 2
+
+	// Print vertical padding
+	for i := 0; i < vPadding; i++ {
+		fmt.Println()
+	}
+
+	// Print QR code with horizontal padding
 	for i := 0; i < qr.size; i++ {
+		fmt.Print(strings.Repeat(" ", hPadding))
 		for j := 0; j < qr.size; j++ {
 			if qr.modules[i][j] {
 				fmt.Print("██")
